@@ -27,30 +27,14 @@ public class Order {
         this.status = OrderStatus.PENDING;  // 初始状态为待处理
     }
 
-    // 接受订单
-    public void acceptOrder() {
-        if (this.status == OrderStatus.PENDING) {
-            this.status = OrderStatus.ACCEPTED;
-        }
-    }
 
-    // 取消订单
-    public void cancelOrder() {
-        if (this.status == OrderStatus.PENDING) {
-            this.status = OrderStatus.CANCELLED;
-        }
-    }
-
- 
-
-// 完成订单
-public void completeOrder() {
-    if (this.paymentInfo != null && this.paymentInfo.getPaymentStatus() == PaymentStatus.PAID) {
+    public void completeOrder() {
+        if (this.paymentInfo != null && this.paymentInfo.getPaymentStatus() == PaymentStatus.PAID) {
         this.status = OrderStatus.COMPLETED;  // 支付完成后订单完成
-    } else {
+        } else {
         throw new IllegalStateException("Order cannot be completed unless payment is made");
+        }
     }
-}
 
 
     // 计算总金额
@@ -108,4 +92,9 @@ public void completeOrder() {
     public void setStatus(OrderStatus status) {
         this.status = status;
     }
+
+    public void setPaymentInfo(PaymentInfo paymentInfo) {
+        this.paymentInfo = paymentInfo;
+    }
+    
 }

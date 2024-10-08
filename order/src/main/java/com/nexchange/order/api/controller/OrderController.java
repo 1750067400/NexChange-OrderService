@@ -23,7 +23,7 @@ public class OrderController {
         return new ResponseEntity<>(createdProposal, HttpStatus.CREATED);
     }
 
-    // 接受提案，将提案转换为订单
+    // 接受提案并将其转换为订单
     @PostMapping("/proposal/{proposalId}/accept")
     public ResponseEntity<Void> acceptProposal(@PathVariable String proposalId) {
         orderService.acceptProposal(proposalId);
@@ -37,14 +37,14 @@ public class OrderController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 查看订单历史
+    // 查看客户的订单历史
     @GetMapping("/history/{customerId}")
     public ResponseEntity<List<OrderProposal>> getOrderHistory(@PathVariable String customerId) {
         List<OrderProposal> orderHistory = orderService.getOrderHistory(customerId);
         return new ResponseEntity<>(orderHistory, HttpStatus.OK);
     }
 
-    // 查看待支付订单
+    // 查看客户待支付的订单
     @GetMapping("/pending/{customerId}")
     public ResponseEntity<List<OrderProposal>> getPendingOrders(@PathVariable String customerId) {
         List<OrderProposal> pendingOrders = orderService.getPendingOrders(customerId);
