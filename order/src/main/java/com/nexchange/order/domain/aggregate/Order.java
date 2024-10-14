@@ -1,22 +1,24 @@
-package com.nexchange.order.domain.model;
+package com.nexchange.order.domain.aggregate;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Order {
     private UUID orderId;
-    private UUID buyerId;
+    private UUID postId;
     private UUID sellerId;
+    private UUID buyerId;
     private String postTitle;
     private String postPrice;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private OrderStatus status;
 
-    public Order(UUID buyerId, UUID sellerId, String postTitle, String postPrice) {
+    public Order(UUID postId, UUID sellerId, UUID buyerId, String postTitle, String postPrice) {
         this.orderId = UUID.randomUUID();
-        this.buyerId = buyerId;
+        this.postId = postId;
         this.sellerId = sellerId;
+        this.buyerId = buyerId;
         this.postTitle = postTitle;
         this.postPrice = postPrice;
         this.createdAt = LocalDateTime.now();
@@ -28,12 +30,16 @@ public class Order {
         return orderId;
     }
 
-    public UUID getBuyerId() {
-        return buyerId;
+    public UUID getPostId() {
+        return postId;
     }
 
     public UUID getSellerId() {
         return sellerId;
+    }
+
+    public UUID getBuyerId() {
+        return buyerId;
     }
 
     public String getPostTitle() {
@@ -60,16 +66,16 @@ public class Order {
         this.status = status;
         this.updatedAt = LocalDateTime.now();
     }
-}
 
-enum OrderStatus {
-    PROPOSAL,
-    ACCEPTED,
-    UNPAID,
-    PAID,
-    SHIPPED,
-    SHIPPING,
-    RECEIVED,
-    COMPLETED,
-    CANCELED
+    public enum OrderStatus {
+        PROPOSAL,
+        ACCEPTED,
+        UNPAID,
+        PAID,
+        SHIPPED,
+        SHIPPING,
+        RECEIVED,
+        COMPLETED,
+        CANCELED
+    }
 }

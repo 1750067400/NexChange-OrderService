@@ -1,53 +1,52 @@
 package com.nexchange.order.api.controller;
 
 import com.nexchange.order.application.service.IOrderservice;
-import com.nexchange.order.domain.aggregate.OrderProposal;
+import com.nexchange.order.domain.aggregate.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
-
-    @Autowired
-    private IOrderservice orderService;
-
-    // 创建提案
-    @PostMapping("/proposal")
-    public ResponseEntity<OrderProposal> createProposal(@RequestBody OrderProposal orderProposal) {
-        OrderProposal createdProposal = orderService.createProposal(orderProposal);
-        return new ResponseEntity<>(createdProposal, HttpStatus.CREATED);
+    
+    @GetMapping("/test")
+    public String testEndpoint() {
+        return "Order service is up and running!";
     }
 
-    // 接受提案并将其转换为订单
-    @PostMapping("/proposal/{proposalId}/accept")
-    public ResponseEntity<Void> acceptProposal(@PathVariable String proposalId) {
-        orderService.acceptProposal(proposalId);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PostMapping("/proposal/create")
+    public ResponseEntity<String> createProposal() {
+        // Placeholder for proposal creation logic
+        return ResponseEntity.status(HttpStatus.CREATED).body("Proposal has been created successfully!");
     }
 
-    // 取消提案
-    @PostMapping("/proposal/{proposalId}/cancel")
-    public ResponseEntity<Void> cancelProposal(@PathVariable String proposalId) {
-        orderService.cancelProposal(proposalId);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PostMapping("/proposal/accept/{proposalId}")
+    public ResponseEntity<String> acceptProposal(@PathVariable String proposalId) {
+        // Placeholder for accepting proposal and converting to order logic
+        return ResponseEntity.ok("Proposal " + proposalId + " has been accepted and converted to an order.");
     }
 
-    // 查看客户的订单历史
-    @GetMapping("/history/{customerId}")
-    public ResponseEntity<List<OrderProposal>> getOrderHistory(@PathVariable String customerId) {
-        List<OrderProposal> orderHistory = orderService.getOrderHistory(customerId);
-        return new ResponseEntity<>(orderHistory, HttpStatus.OK);
+    @DeleteMapping("/proposal/cancel/{proposalId}")
+    public ResponseEntity<String> cancelProposal(@PathVariable String proposalId) {
+        // Placeholder for canceling proposal logic
+        return ResponseEntity.ok("Proposal " + proposalId + " has been canceled.");
     }
 
-    // 查看客户待支付的订单
-    @GetMapping("/pending/{customerId}")
-    public ResponseEntity<List<OrderProposal>> getPendingOrders(@PathVariable String customerId) {
-        List<OrderProposal> pendingOrders = orderService.getPendingOrders(customerId);
-        return new ResponseEntity<>(pendingOrders, HttpStatus.OK);
+    @GetMapping("/customer/history/{customerId}")
+    public ResponseEntity<List<String>> getCustomerOrderHistory(@PathVariable String customerId) {
+        // Placeholder for fetching customer order history logic
+        return ResponseEntity.ok(List.of("Order1", "Order2", "Order3"));
+    }
+
+    @GetMapping("/payment/status/{orderId}")
+    public ResponseEntity<String> getPaymentStatus(@PathVariable String orderId) {
+        // Placeholder for fetching payment status logic
+        return ResponseEntity.ok("Payment status for order " + orderId + " is: PAID");
     }
 }

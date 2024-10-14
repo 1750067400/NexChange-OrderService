@@ -1,10 +1,13 @@
 package com.nexchange.order.domain.model;
 
-public enum OrderStatus {
+enum OrderStatus {
     PROPOSAL,
-    ORDER,
-    PENDING,
     ACCEPTED,
+    UNPAID,
+    PAID,
+    SHIPPED,
+    SHIPPING,
+    RECEIVED,
     COMPLETED,
-    CANCELLED
+    CANCELED
 }
