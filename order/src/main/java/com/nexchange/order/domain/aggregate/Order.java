@@ -1,81 +1,44 @@
 package com.nexchange.order.domain.aggregate;
 
+import com.nexchange.order.domain.entity.BuyerDetail;
+import com.nexchange.order.domain.entity.OrderStatus;
+import com.nexchange.order.domain.entity.SellerDetail;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Entity
+@Data
+@NoArgsConstructor
 public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID orderId;
-    private UUID postId;
-    private UUID sellerId;
-    private UUID buyerId;
-    private String postTitle;
-    private String postPrice;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private OrderStatus status;
 
-    public Order(UUID postId, UUID sellerId, UUID buyerId, String postTitle, String postPrice) {
-        this.orderId = UUID.randomUUID();
-        this.postId = postId;
-        this.sellerId = sellerId;
-        this.buyerId = buyerId;
-        this.postTitle = postTitle;
-        this.postPrice = postPrice;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        this.status = OrderStatus.PROPOSAL;
-    }
+    private UUID refPostId;
 
-    public UUID getOrderId() {
-        return orderId;
-    }
+    private String refPostTitle;
 
-    public UUID getPostId() {
-        return postId;
-    }
+    private String refPostShortcut;
 
-    public UUID getSellerId() {
-        return sellerId;
-    }
+    private double refPostPrice;
 
-    public UUID getBuyerId() {
-        return buyerId;
-    }
+    private OrderStatus orderStatus;
 
-    public String getPostTitle() {
-        return postTitle;
-    }
+    @CreationTimestamp
+    private LocalDateTime dateTimeCreated;
 
-    public String getPostPrice() {
-        return postPrice;
-    }
+    @UpdateTimestamp
+    private LocalDateTime dateTimeUpdated;
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    @OneToOne
+    private SellerDetail sellerDetail;
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public OrderStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(OrderStatus status) {
-        this.status = status;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public enum OrderStatus {
-        PROPOSAL,
-        ACCEPTED,
-        UNPAID,
-        PAID,
-        SHIPPED,
-        SHIPPING,
-        RECEIVED,
-        COMPLETED,
-        CANCELED
-    }
+    @OneToOne
+    private BuyerDetail buyerDetail;
 }
