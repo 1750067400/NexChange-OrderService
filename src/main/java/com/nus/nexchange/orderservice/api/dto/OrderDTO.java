@@ -25,4 +25,6 @@ public class OrderDTO {
     private SellerDetailDTO sellerDetail;
 
     private BuyerDetailDTO buyerDetail;
+
+    private UUID userId;
 }

@@ -19,6 +19,4 @@ public class SellerDetailDTO {
     private String sellerPostalCode;
 
     private String sellerContactNumber;
-
-    private UUID orderId;
 }
