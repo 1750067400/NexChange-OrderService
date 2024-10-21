@@ -21,9 +21,11 @@ public class SellerDetail {
 
     private String sellerName;
 
-    private String sellerAddress;
+    private String sellerAvatarURL;
 
-    private String sellerPostalCode;
-
-    private String sellerContactNumber;
+//    private String sellerAddress;
+//
+//    private String sellerPostalCode;
+//
+//    private String sellerContactNumber;
 }

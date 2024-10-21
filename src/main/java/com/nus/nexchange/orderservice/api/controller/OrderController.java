@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nus.nexchange.orderservice.api.dto.UUIDOrderDTO;
 import com.nus.nexchange.orderservice.infrastructure.messaging.KafkaProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import com.nus.nexchange.orderservice.application.query.OrderQuery;
 
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/order-system/orders")
 public class OrderController {
 
     @Autowired
@@ -50,32 +51,45 @@ public class OrderController {
     @GetMapping("/seller/{userId}")
     public ResponseEntity<?> getOrdersBySellerId(@PathVariable("userId") UUID userId) {
         try {
-            List<OrderDTO> orderDTOList = orderQuery.getOrdersByUserId(userId);
+            List<OrderDTO> orderDTOList = orderQuery.getOrdersBySellerId(userId);
             return ResponseEntity.ok(orderDTOList);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PostMapping("/new-order")
-    public ResponseEntity<String> createOrder(@RequestBody OrderDTO orderDTO) {
+//    @PostMapping("/new-order")
+//    public ResponseEntity<String> createOrder(@RequestBody OrderDTO orderDTO) {
+//        try {
+//            orderCommand.createOrder(orderDTO);
+//            String orderDTOJson = new ObjectMapper().writeValueAsString(orderDTO);
+////            kafkaProducer.sendMessage("CreateOrder",orderDTOJson);
+//            return ResponseEntity.ok("Order Created");
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
+
+    @GetMapping("/new-order")
+    public ResponseEntity<String> createOrderById(@RequestParam UUID userId, @RequestParam UUID postId) {
         try {
-            orderCommand.createOrder(orderDTO);
-            String orderDTOJson = new ObjectMapper().writeValueAsString(orderDTO);
-            kafkaProducer.sendMessage("CreateOrder",orderDTOJson);
-            return ResponseEntity.ok("Order Created");
+            UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO(userId, postId);
+            String createOrderDTOJson = new ObjectMapper().writeValueAsString(UUIDOrderDTO);
+            kafkaProducer.sendMessage("CreateOrder", createOrderDTOJson);
+            return ResponseEntity.ok("Order Creating");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @DeleteMapping("/delete")
+    @PutMapping("/cancel")
     public ResponseEntity<?> cancelOrder(@RequestParam UUID orderId) {
         try {
-            OrderDTO orderDTO = orderCommand.cancelOrder(orderId);
-            String orderDTOJson = new ObjectMapper().writeValueAsString(orderDTO);
-            kafkaProducer.sendMessage("CancelOrder",orderDTOJson);
-            return ResponseEntity.ok("Proposal canceled successfully");
+            UUIDOrderDTO UUIDOrderDTO = orderCommand.cancelOrder(orderId);
+            String orderDTO = new ObjectMapper().writeValueAsString(UUIDOrderDTO);
+
+            kafkaProducer.sendMessage("CancelOrder", orderDTO);
+            return ResponseEntity.ok("Order canceled successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

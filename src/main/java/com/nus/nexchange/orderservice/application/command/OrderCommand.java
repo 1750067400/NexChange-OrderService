@@ -1,10 +1,15 @@
 package com.nus.nexchange.orderservice.application.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nus.nexchange.orderservice.api.dto.OrderDTO;
+import com.nus.nexchange.orderservice.api.dto.UUIDOrderDTO;
 import com.nus.nexchange.orderservice.domain.aggregate.Order;
 import com.nus.nexchange.orderservice.domain.entity.BuyerDetail;
 import com.nus.nexchange.orderservice.domain.entity.OrderStatus;
 import com.nus.nexchange.orderservice.domain.entity.SellerDetail;
+import com.nus.nexchange.orderservice.infrastructure.messaging.KafkaProducer;
+import com.nus.nexchange.orderservice.infrastructure.messaging.dto.UserOrderDTO;
 import com.nus.nexchange.orderservice.infrastructure.repository.OrderRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +26,38 @@ public class OrderCommand implements IOrderCommand {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private KafkaProducer kafkaProducer;
+
     @Override
     public void createOrder(OrderDTO orderDTO) {
         Order order = modelMapper.map(orderDTO, Order.class);
+        System.out.println(orderDTO);
         order.setSellerDetail(modelMapper.map(orderDTO.getSellerDetail(), SellerDetail.class));
         order.setBuyerDetail(modelMapper.map(orderDTO.getBuyerDetail(), BuyerDetail.class));
         order.setOrderStatus(OrderStatus.UNPAID);
+        System.out.println(order);
+
+        order.setOrderId(orderDTO.getOrderId());
 
         orderRepository.save(order);
 
+        System.out.println("Saved Order ID: " + order.getOrderId());
+
         orderDTO.setOrderId(order.getOrderId());
+        System.out.println(orderDTO);
         orderDTO.setOrderStatus(order.getOrderStatus());
+        orderDTO.setUserId(order.getBuyerDetail().getRefUserId());
+
+        try {
+            String orderDTOJson = new ObjectMapper().writeValueAsString(modelMapper.map(orderDTO, UserOrderDTO.class));
+            kafkaProducer.sendMessage("CreatedOrder", orderDTOJson);
+
+            String postId = String.valueOf(orderDTO.getRefPostId());
+            kafkaProducer.sendMessage("PostFinished",postId);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -74,7 +100,7 @@ public class OrderCommand implements IOrderCommand {
     }
 
     @Override
-    public OrderDTO cancelOrder(UUID orderId) {
+    public UUIDOrderDTO cancelOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElse(null);
 
         if (order == null) {
@@ -85,12 +111,12 @@ public class OrderCommand implements IOrderCommand {
 
         orderRepository.save(order);
 
-        OrderDTO orderDTO = new OrderDTO();
-        orderDTO.setOrderId(order.getOrderId());
-        orderDTO.setOrderStatus(order.getOrderStatus());
-        orderDTO.setUserId(order.getBuyerDetail().getRefUserId());
+        UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO();
+        UUIDOrderDTO.setOrderId(order.getOrderId());
+        UUIDOrderDTO.setUserId(order.getBuyerDetail().getRefUserId());
+        UUIDOrderDTO.setPostId(order.getRefPostId());
 
-        return orderDTO;
+        return UUIDOrderDTO;
     }
 
     @Override
