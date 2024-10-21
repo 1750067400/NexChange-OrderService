@@ -32,20 +32,14 @@ public class OrderCommand implements IOrderCommand {
     @Override
     public void createOrder(OrderDTO orderDTO) {
         Order order = modelMapper.map(orderDTO, Order.class);
-        System.out.println(orderDTO);
         order.setSellerDetail(modelMapper.map(orderDTO.getSellerDetail(), SellerDetail.class));
         order.setBuyerDetail(modelMapper.map(orderDTO.getBuyerDetail(), BuyerDetail.class));
         order.setOrderStatus(OrderStatus.UNPAID);
-        System.out.println(order);
-
-        order.setOrderId(orderDTO.getOrderId());
 
         orderRepository.save(order);
 
-        System.out.println("Saved Order ID: " + order.getOrderId());
-
         orderDTO.setOrderId(order.getOrderId());
-        System.out.println(orderDTO);
+        System.out.println("Order"+order);
         orderDTO.setOrderStatus(order.getOrderStatus());
         orderDTO.setUserId(order.getBuyerDetail().getRefUserId());
 

@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 public class BuyerDetailDTO {
+    private UUID buyerId;
+
     private UUID refUserId;
 
     private String buyerName;

@@ -24,4 +24,6 @@ public class OrderPostDTO {
     private PostSellerDTO postSeller;
 
     private UUID orderId;
+
+    private UUID secret;
 }

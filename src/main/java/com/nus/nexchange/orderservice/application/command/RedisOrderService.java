@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class RedisOrderService {
@@ -22,34 +23,44 @@ public class RedisOrderService {
     private OrderCommand orderCommand;
 
     public void storeOrderContact(OrderContactDTO orderContactDTO) {
-        String key = "order:" + orderContactDTO.getOrderId();
+        String key = "order:" + orderContactDTO.getSecret();
         redisTemplate.opsForHash().put(key, "buyerInfo", orderContactDTO);
-        checkAndCreateOrder(orderContactDTO.getOrderId());
+        checkAndCreateOrder(orderContactDTO.getSecret());
     }
 
     public void storeOrderPost(OrderPostDTO orderPostDTO) {
-        String key = "order:" + orderPostDTO.getOrderId();
+        String key = "order:" + orderPostDTO.getSecret();
         redisTemplate.opsForHash().put(key, "postInfo", orderPostDTO);
-        checkAndCreateOrder(orderPostDTO.getOrderId());
+        checkAndCreateOrder(orderPostDTO.getSecret());
     }
 
-    private void checkAndCreateOrder(UUID orderId) {
-        String key = "order:" + orderId;
-        OrderContactDTO orderContactDTO = (OrderContactDTO) redisTemplate.opsForHash().get(key, "buyerInfo");
-        OrderPostDTO orderPostDTO = (OrderPostDTO) redisTemplate.opsForHash().get(key, "postInfo");
+    private void checkAndCreateOrder(UUID secret) {
+        String key = "order:" + secret;
+        String lockKey = key + ":lock";
 
-        if (orderContactDTO != null && orderPostDTO != null) {
-            OrderDTO orderDTO = convertOrderDTO(orderContactDTO, orderPostDTO);
-            orderCommand.createOrder(orderDTO);
+        Boolean isLocked = redisTemplate.opsForValue().setIfAbsent(lockKey, "locked", 10, TimeUnit.SECONDS);
 
-            redisTemplate.delete(key);
+        if (Boolean.TRUE.equals(isLocked)) {
+            try {
+                OrderContactDTO orderContactDTO = (OrderContactDTO) redisTemplate.opsForHash().get(key, "buyerInfo");
+                OrderPostDTO orderPostDTO = (OrderPostDTO) redisTemplate.opsForHash().get(key, "postInfo");
+
+                if (orderContactDTO != null && orderPostDTO != null) {
+                    System.out.println("trigger");
+                    OrderDTO orderDTO = convertOrderDTO(orderContactDTO, orderPostDTO);
+                    orderCommand.createOrder(orderDTO);
+                }
+            } finally {
+                redisTemplate.delete(key);
+
+            }
         }
     }
 
-    private OrderDTO convertOrderDTO(OrderContactDTO orderContactDTO,OrderPostDTO orderPostDTO) {
+    private OrderDTO convertOrderDTO(OrderContactDTO orderContactDTO, OrderPostDTO orderPostDTO) {
         OrderDTO orderDTO = new OrderDTO();
 
-        orderDTO.setOrderId(orderContactDTO.getOrderId());
+//        orderDTO.setOrderId(orderContactDTO.getOrderId());
 
         orderDTO.setRefPostId(orderPostDTO.getPostId());
         orderDTO.setRefPostTitle(orderPostDTO.getPostTittle());
