@@ -39,7 +39,7 @@ public class OrderCommand implements IOrderCommand {
         orderRepository.save(order);
 
         orderDTO.setOrderId(order.getOrderId());
-        System.out.println("Order"+order);
+
         orderDTO.setOrderStatus(order.getOrderStatus());
         orderDTO.setUserId(order.getBuyerDetail().getRefUserId());
 
