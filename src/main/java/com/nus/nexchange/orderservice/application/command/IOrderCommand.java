@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface IOrderCommand {
     public void createOrder(OrderDTO orderDTO);
-    public void expireOrder(UUID orderId);
+    public UUIDOrderDTO expireOrder(UUID orderId);
     public void payOrder(UUID orderId);
     public void shipOrder(UUID orderId);
     public UUIDOrderDTO cancelOrder(UUID orderId);

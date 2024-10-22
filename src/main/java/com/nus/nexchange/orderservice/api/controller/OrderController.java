@@ -94,4 +94,17 @@ public class OrderController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping("/expire")
+    public ResponseEntity<?> expireOrder(@RequestParam UUID orderId) {
+        try{
+            UUIDOrderDTO UUIDOrderDTO = orderCommand.expireOrder(orderId);
+            String orderDTO = new ObjectMapper().writeValueAsString(UUIDOrderDTO);
+
+            kafkaProducer.sendMessage("ExpireOrder", orderDTO);
+            return ResponseEntity.ok("Order expire successfully");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

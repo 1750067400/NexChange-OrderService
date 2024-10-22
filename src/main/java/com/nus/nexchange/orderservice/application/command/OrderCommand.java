@@ -55,7 +55,7 @@ public class OrderCommand implements IOrderCommand {
     }
 
     @Override
-    public void expireOrder(UUID orderId) {
+    public UUIDOrderDTO expireOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElse(null);
 
         if (order == null) {
@@ -65,6 +65,13 @@ public class OrderCommand implements IOrderCommand {
         order.setOrderStatus(OrderStatus.EXPIRED);
 
         orderRepository.save(order);
+
+        UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO();
+        UUIDOrderDTO.setOrderId(order.getOrderId());
+        UUIDOrderDTO.setUserId(order.getBuyerDetail().getRefUserId());
+        UUIDOrderDTO.setPostId(order.getRefPostId());
+
+        return UUIDOrderDTO;
     }
 
     @Override
