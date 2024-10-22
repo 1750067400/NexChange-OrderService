@@ -48,7 +48,7 @@ public class OrderCommand implements IOrderCommand {
             kafkaProducer.sendMessage("CreatedOrder", orderDTOJson);
 
             String postId = String.valueOf(orderDTO.getRefPostId());
-            kafkaProducer.sendMessage("PostFinished",postId);
+            kafkaProducer.sendMessage("PostFinished", postId);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -75,7 +75,7 @@ public class OrderCommand implements IOrderCommand {
     }
 
     @Override
-    public void payOrder(UUID orderId) {
+    public UUIDOrderDTO payOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElse(null);
 
         if (order == null) {
@@ -85,10 +85,17 @@ public class OrderCommand implements IOrderCommand {
         order.setOrderStatus(OrderStatus.PAID);
 
         orderRepository.save(order);
+
+        UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO();
+        UUIDOrderDTO.setOrderId(order.getOrderId());
+        UUIDOrderDTO.setUserId(order.getBuyerDetail().getRefUserId());
+        UUIDOrderDTO.setPostId(order.getRefPostId());
+
+        return UUIDOrderDTO;
     }
 
     @Override
-    public void shipOrder(UUID orderId) {
+    public UUIDOrderDTO shipOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElse(null);
 
         if (order == null) {
@@ -98,6 +105,13 @@ public class OrderCommand implements IOrderCommand {
         order.setOrderStatus(OrderStatus.SHIPPED);
 
         orderRepository.save(order);
+
+        UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO();
+        UUIDOrderDTO.setOrderId(order.getOrderId());
+        UUIDOrderDTO.setUserId(order.getBuyerDetail().getRefUserId());
+        UUIDOrderDTO.setPostId(order.getRefPostId());
+
+        return UUIDOrderDTO;
     }
 
     @Override
@@ -121,7 +135,7 @@ public class OrderCommand implements IOrderCommand {
     }
 
     @Override
-    public void completeOrder(UUID orderId) {
+    public UUIDOrderDTO completeOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElse(null);
 
         if (order == null) {
@@ -131,5 +145,12 @@ public class OrderCommand implements IOrderCommand {
         order.setOrderStatus(OrderStatus.COMPLETED);
 
         orderRepository.save(order);
+
+        UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO();
+        UUIDOrderDTO.setOrderId(order.getOrderId());
+        UUIDOrderDTO.setUserId(order.getBuyerDetail().getRefUserId());
+        UUIDOrderDTO.setPostId(order.getRefPostId());
+
+        return UUIDOrderDTO;
     }
 }

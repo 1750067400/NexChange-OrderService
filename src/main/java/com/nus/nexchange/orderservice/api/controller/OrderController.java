@@ -70,11 +70,10 @@ public class OrderController {
 //        }
 //    }
 
-    @GetMapping("/new-order")
-    public ResponseEntity<String> createOrderById(@RequestParam UUID userId, @RequestParam UUID postId) {
+    @PostMapping("/new-order")
+    public ResponseEntity<String> createOrderById(@RequestBody UUIDOrderDTO createOrderDTO) {
         try {
-            UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO(userId, postId);
-            String createOrderDTOJson = new ObjectMapper().writeValueAsString(UUIDOrderDTO);
+            String createOrderDTOJson = new ObjectMapper().writeValueAsString(createOrderDTO);
             kafkaProducer.sendMessage("CreateOrder", createOrderDTOJson);
             return ResponseEntity.ok("Order Creating");
         } catch (Exception e) {
@@ -102,6 +101,19 @@ public class OrderController {
             String orderDTO = new ObjectMapper().writeValueAsString(UUIDOrderDTO);
 
             kafkaProducer.sendMessage("ExpireOrder", orderDTO);
+            return ResponseEntity.ok("Order expire successfully");
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/pay")
+    public ResponseEntity<?> payOrder(@RequestParam UUID orderId) {
+        try{
+            UUIDOrderDTO UUIDOrderDTO = orderCommand.payOrder(orderId);
+            String orderDTO = new ObjectMapper().writeValueAsString(UUIDOrderDTO);
+
+            kafkaProducer.sendMessage("PayOrder", orderDTO);
             return ResponseEntity.ok("Order expire successfully");
         }catch(Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
