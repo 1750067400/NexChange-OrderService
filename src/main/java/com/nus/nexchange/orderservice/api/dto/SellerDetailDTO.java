@@ -3,7 +3,6 @@ package com.nus.nexchange.orderservice.api.dto;
 import java.util.UUID;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 
 @Data

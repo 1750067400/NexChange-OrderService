@@ -19,14 +19,18 @@ import com.nus.nexchange.orderservice.application.query.OrderQuery;
 @RequestMapping("/api/order-system/orders")
 public class OrderController {
 
-    @Autowired
-    private OrderQuery orderQuery;
+    private final OrderQuery orderQuery;
+
+    private final OrderCommand orderCommand;
+
+    private final KafkaProducer kafkaProducer;
 
     @Autowired
-    private OrderCommand orderCommand;
-
-    @Autowired
-    private KafkaProducer kafkaProducer;
+    public OrderController(OrderQuery orderQuery, OrderCommand orderCommand, KafkaProducer kafkaProducer) {
+        this.orderQuery = orderQuery;
+        this.orderCommand = orderCommand;
+        this.kafkaProducer = kafkaProducer;
+    }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDTO> getOrderByOrderId(@PathVariable UUID orderId) {
@@ -71,8 +75,9 @@ public class OrderController {
 //    }
 
     @PostMapping("/new-order")
-    public ResponseEntity<String> createOrderById(@RequestBody UUIDOrderDTO createOrderDTO) {
+    public ResponseEntity<String> createOrderById(@RequestBody UUIDOrderDTO UUIDOrderDTO) {
         try {
+            UUIDOrderDTO createOrderDTO = new UUIDOrderDTO(UUIDOrderDTO.getUserId(), UUIDOrderDTO.getPostId());
             String createOrderDTOJson = new ObjectMapper().writeValueAsString(createOrderDTO);
             kafkaProducer.sendMessage("CreateOrder", createOrderDTOJson);
             return ResponseEntity.ok("Order Creating");
@@ -96,26 +101,26 @@ public class OrderController {
 
     @GetMapping("/expire")
     public ResponseEntity<?> expireOrder(@RequestParam UUID orderId) {
-        try{
+        try {
             UUIDOrderDTO UUIDOrderDTO = orderCommand.expireOrder(orderId);
             String orderDTO = new ObjectMapper().writeValueAsString(UUIDOrderDTO);
 
             kafkaProducer.sendMessage("ExpireOrder", orderDTO);
             return ResponseEntity.ok("Order expire successfully");
-        }catch(Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping("/pay")
     public ResponseEntity<?> payOrder(@RequestParam UUID orderId) {
-        try{
+        try {
             UUIDOrderDTO UUIDOrderDTO = orderCommand.payOrder(orderId);
             String orderDTO = new ObjectMapper().writeValueAsString(UUIDOrderDTO);
 
             kafkaProducer.sendMessage("PayOrder", orderDTO);
-            return ResponseEntity.ok("Order expire successfully");
-        }catch(Exception e){
+            return ResponseEntity.ok("Order pay successfully");
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

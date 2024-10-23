@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IOrderQuery {
-    public OrderDTO getOrderByOrderId(UUID orderId);
-    public List<OrderDTO> getOrdersByUserId(UUID userId);
-    public List<OrderDTO> getOrdersBySellerId(UUID sellerId);
+    OrderDTO getOrderByOrderId(UUID orderId);
+
+    List<OrderDTO> getOrdersByUserId(UUID userId);
+
+    List<OrderDTO> getOrdersBySellerId(UUID sellerId);
 }

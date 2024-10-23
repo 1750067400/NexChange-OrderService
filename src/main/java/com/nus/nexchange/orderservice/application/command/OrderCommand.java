@@ -12,6 +12,8 @@ import com.nus.nexchange.orderservice.infrastructure.messaging.KafkaProducer;
 import com.nus.nexchange.orderservice.infrastructure.messaging.dto.UserOrderDTO;
 import com.nus.nexchange.orderservice.infrastructure.repository.OrderRepository;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,15 +21,20 @@ import java.util.UUID;
 
 @Service
 public class OrderCommand implements IOrderCommand {
+    private static final Logger logger = LoggerFactory.getLogger(OrderCommand.class);
+
+    private final OrderRepository orderRepository;
+
+    private final ModelMapper modelMapper;
+
+    private final KafkaProducer kafkaProducer;
 
     @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
-    private KafkaProducer kafkaProducer;
+    public OrderCommand(OrderRepository orderRepository, ModelMapper modelMapper, KafkaProducer kafkaProducer) {
+        this.orderRepository = orderRepository;
+        this.modelMapper = modelMapper;
+        this.kafkaProducer = kafkaProducer;
+    }
 
     @Override
     public void createOrder(OrderDTO orderDTO) {
@@ -36,8 +43,10 @@ public class OrderCommand implements IOrderCommand {
         order.setBuyerDetail(modelMapper.map(orderDTO.getBuyerDetail(), BuyerDetail.class));
         order.setOrderStatus(OrderStatus.UNPAID);
 
+        System.out.println("Enter Repository"+order);
         orderRepository.save(order);
 
+        System.out.println("Enter OrderDTO"+order);
         orderDTO.setOrderId(order.getOrderId());
 
         orderDTO.setOrderStatus(order.getOrderStatus());
@@ -50,7 +59,7 @@ public class OrderCommand implements IOrderCommand {
             String postId = String.valueOf(orderDTO.getRefPostId());
             kafkaProducer.sendMessage("PostFinished", postId);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.error("An error occurred: {}", e.getMessage(), e);
         }
     }
 
@@ -94,25 +103,25 @@ public class OrderCommand implements IOrderCommand {
         return UUIDOrderDTO;
     }
 
-    @Override
-    public UUIDOrderDTO shipOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId).orElse(null);
-
-        if (order == null) {
-            throw new IllegalArgumentException("Order not found");
-        }
-
-        order.setOrderStatus(OrderStatus.SHIPPED);
-
-        orderRepository.save(order);
-
-        UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO();
-        UUIDOrderDTO.setOrderId(order.getOrderId());
-        UUIDOrderDTO.setUserId(order.getBuyerDetail().getRefUserId());
-        UUIDOrderDTO.setPostId(order.getRefPostId());
-
-        return UUIDOrderDTO;
-    }
+//    @Override
+//    public UUIDOrderDTO shipOrder(UUID orderId) {
+//        Order order = orderRepository.findById(orderId).orElse(null);
+//
+//        if (order == null) {
+//            throw new IllegalArgumentException("Order not found");
+//        }
+//
+//        order.setOrderStatus(OrderStatus.SHIPPED);
+//
+//        orderRepository.save(order);
+//
+//        UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO();
+//        UUIDOrderDTO.setOrderId(order.getOrderId());
+//        UUIDOrderDTO.setUserId(order.getBuyerDetail().getRefUserId());
+//        UUIDOrderDTO.setPostId(order.getRefPostId());
+//
+//        return UUIDOrderDTO;
+//    }
 
     @Override
     public UUIDOrderDTO cancelOrder(UUID orderId) {
@@ -134,23 +143,23 @@ public class OrderCommand implements IOrderCommand {
         return UUIDOrderDTO;
     }
 
-    @Override
-    public UUIDOrderDTO completeOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId).orElse(null);
-
-        if (order == null) {
-            throw new IllegalArgumentException("Order not found");
-        }
-
-        order.setOrderStatus(OrderStatus.COMPLETED);
-
-        orderRepository.save(order);
-
-        UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO();
-        UUIDOrderDTO.setOrderId(order.getOrderId());
-        UUIDOrderDTO.setUserId(order.getBuyerDetail().getRefUserId());
-        UUIDOrderDTO.setPostId(order.getRefPostId());
-
-        return UUIDOrderDTO;
-    }
+//    @Override
+//    public UUIDOrderDTO completeOrder(UUID orderId) {
+//        Order order = orderRepository.findById(orderId).orElse(null);
+//
+//        if (order == null) {
+//            throw new IllegalArgumentException("Order not found");
+//        }
+//
+//        order.setOrderStatus(OrderStatus.COMPLETED);
+//
+//        orderRepository.save(order);
+//
+//        UUIDOrderDTO UUIDOrderDTO = new UUIDOrderDTO();
+//        UUIDOrderDTO.setOrderId(order.getOrderId());
+//        UUIDOrderDTO.setUserId(order.getBuyerDetail().getRefUserId());
+//        UUIDOrderDTO.setPostId(order.getRefPostId());
+//
+//        return UUIDOrderDTO;
+//    }
 }

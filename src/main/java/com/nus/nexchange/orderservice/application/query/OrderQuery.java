@@ -16,11 +16,15 @@ import java.util.UUID;
 @Service
 public class OrderQuery implements IOrderQuery {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+
+    private final ModelMapper modelMapper;
 
     @Autowired
-    private ModelMapper modelMapper;
+    public OrderQuery(OrderRepository orderRepository, ModelMapper modelMapper) {
+        this.orderRepository = orderRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public OrderDTO getOrderByOrderId(UUID orderId) {

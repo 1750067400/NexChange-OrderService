@@ -6,10 +6,15 @@ import com.nus.nexchange.orderservice.api.dto.UUIDOrderDTO;
 import java.util.UUID;
 
 public interface IOrderCommand {
-    public void createOrder(OrderDTO orderDTO);
-    public UUIDOrderDTO expireOrder(UUID orderId);
-    public UUIDOrderDTO payOrder(UUID orderId);
-    public UUIDOrderDTO shipOrder(UUID orderId);
-    public UUIDOrderDTO cancelOrder(UUID orderId);
-    public UUIDOrderDTO completeOrder(UUID orderId);
+    void createOrder(OrderDTO orderDTO);
+
+    UUIDOrderDTO expireOrder(UUID orderId);
+
+    UUIDOrderDTO payOrder(UUID orderId);
+
+//    UUIDOrderDTO shipOrder(UUID orderId);
+
+    UUIDOrderDTO cancelOrder(UUID orderId);
+
+//    UUIDOrderDTO completeOrder(UUID orderId);
 }
