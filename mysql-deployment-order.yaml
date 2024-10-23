@@ -28,7 +28,13 @@ spec:
               value: “root”
           ports:
             - containerPort: 3306
-
+          volumeMounts:
+            - name: mysql-persistent-storage-order
+              mountPath: /var/lib/mysql  # MySQL 的数据目录
+      volumes:
+        - name: mysql-persistent-storage-order
+          persistentVolumeClaim:
+            claimName: mysql-pvc-order  # 订单数据库的PVC
 ---
 apiVersion: v1
 kind: Service
