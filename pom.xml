@@ -107,7 +107,7 @@
     </dependencies>
 
     <build>
-        <finalName>NexChange-UserService</finalName>
+        <finalName>NexChange-OrderService</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
