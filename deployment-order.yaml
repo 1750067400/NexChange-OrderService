@@ -42,7 +42,7 @@ spec:
         - name: nexchange-orderservice
           image: jmx7139/nexchange-orderservice:latest
           ports:
-            - containerPort: 8082
+            - containerPort: 8083
           env:
             - name: DB_HOST
               valueFrom:
@@ -91,18 +91,18 @@ spec:
           # Enable Probe
           startupProbe:
             tcpSocket:              # Use TCP Check to Replace HTTP
-              port: 8082
+              port: 8083
             failureThreshold: 30
             periodSeconds: 10
           readinessProbe:
             tcpSocket:
-              port: 8082
+              port: 8083
             initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 3
           livenessProbe:
             tcpSocket:
-              port: 8082
+              port: 8083
             initialDelaySeconds: 90
             periodSeconds: 15
             failureThreshold: 3
@@ -125,8 +125,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 8082
-      targetPort: 8082
+    - port: 8083
+      targetPort: 8083
       protocol: TCP
   selector:
     app: nexchange-orderservice
