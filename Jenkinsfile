@@ -127,28 +127,29 @@ pipeline {
         stage('Create PV and PVC for MySQL') {
             steps {
                 script {
-                    // 检查 PVC 是否已经绑定
+                    // 检查PVC是否存在
                     def pvcStatus = sh(
-                            script: "kubectl get pvc mysql-pvc-order -o jsonpath='{.status.phase}'",
+                            script: "kubectl get pvc mysql-pvc-order --ignore-not-found -o jsonpath='{.status.phase}'",
                             returnStdout: true
                     ).trim()
 
-                    // 如果 PVC 已经是 Bound 状态，则跳过创建步骤
-                    if (pvcStatus == 'Bound') {
-                        echo "PVC is already bound, skipping creation."
+                    if (pvcStatus == "Bound") {
+                        echo "PVC 'mysql-pvc-order' already exists, skipping creation."
                     } else {
-                        // 创建 MySQL 的 PV 和 PVC
+                        // 如果 PVC 不存在，执行创建
+                        echo "PVC 'mysql-pvc-user' not found, creating..."
                         sh "kubectl apply -f mysql-order-service-pv.yaml"
                         sh "kubectl apply -f mysql-order-service-pvc.yaml"
 
                         // 等待 PVC 准备就绪
-                        sh "kubectl wait --for=condition=bound pvc/mysql-pvc-order --timeout=120s"
+//                        sh "kubectl wait --for=condition=bound pvc/mysql-pvc-order --timeout=60s"
 
                         echo "PV and PVC for MySQL created successfully."
                     }
                 }
             }
         }
+
         stage('Deploy MySQL') {
             steps {
                 script {
