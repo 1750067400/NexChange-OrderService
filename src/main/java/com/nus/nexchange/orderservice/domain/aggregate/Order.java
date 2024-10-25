@@ -20,7 +20,7 @@ import java.util.UUID;
 @Table(name = "nexorder")
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+//    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID orderId;
 
     private UUID refPostId;

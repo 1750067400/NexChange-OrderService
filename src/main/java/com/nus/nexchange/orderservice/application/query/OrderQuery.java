@@ -74,6 +74,7 @@ public class OrderQuery implements IOrderQuery {
 
         orderDTO.setOrderStatus(order.getOrderStatus());
         orderDTO.setUserId(buyerDetailDTO.getRefUserId());
+        orderDTO.setDateTimeCreated(order.getDateTimeCreated());
 
         return orderDTO;
     }

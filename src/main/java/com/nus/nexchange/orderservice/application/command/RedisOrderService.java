@@ -47,13 +47,9 @@ public class RedisOrderService {
         if (Boolean.TRUE.equals(isLocked)) {
             try {
                 OrderContactDTO orderContactDTO = (OrderContactDTO) redisTemplate.opsForHash().get(key, "buyerInfo");
-                System.out.println(orderContactDTO);
                 OrderPostDTO orderPostDTO = (OrderPostDTO) redisTemplate.opsForHash().get(key, "postInfo");
-                System.out.println(orderPostDTO);
                 if (orderContactDTO != null && orderPostDTO != null) {
-                    System.out.println("trigger");
                     OrderDTO orderDTO = convertOrderDTO(orderContactDTO, orderPostDTO);
-                    System.out.println("Enter Command" + orderDTO);
                     orderCommand.createOrder(orderDTO);
 
                     redisTemplate.delete(key);
@@ -67,7 +63,7 @@ public class RedisOrderService {
     private OrderDTO convertOrderDTO(OrderContactDTO orderContactDTO, OrderPostDTO orderPostDTO) {
         OrderDTO orderDTO = new OrderDTO();
 
-//        orderDTO.setOrderId(orderContactDTO.getOrderId());
+        orderDTO.setOrderId(orderContactDTO.getOrderId());
 
         orderDTO.setRefPostId(orderPostDTO.getPostId());
         orderDTO.setRefPostTitle(orderPostDTO.getPostTittle());

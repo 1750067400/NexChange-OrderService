@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nus.nexchange.orderservice.api.dto.OrderDTO;
 import com.nus.nexchange.orderservice.api.dto.UUIDOrderDTO;
+import com.nus.nexchange.orderservice.application.event.DomainEventPublisher;
 import com.nus.nexchange.orderservice.domain.aggregate.Order;
 import com.nus.nexchange.orderservice.domain.entity.BuyerDetail;
 import com.nus.nexchange.orderservice.domain.entity.OrderStatus;
@@ -29,11 +30,14 @@ public class OrderCommand implements IOrderCommand {
 
     private final KafkaProducer kafkaProducer;
 
+    private final DomainEventPublisher domainEventPublisher;
+
     @Autowired
-    public OrderCommand(OrderRepository orderRepository, ModelMapper modelMapper, KafkaProducer kafkaProducer) {
+    public OrderCommand(OrderRepository orderRepository, ModelMapper modelMapper, KafkaProducer kafkaProducer, DomainEventPublisher domainEventPublisher) {
         this.orderRepository = orderRepository;
         this.modelMapper = modelMapper;
         this.kafkaProducer = kafkaProducer;
+        this.domainEventPublisher = domainEventPublisher;
     }
 
     @Override
@@ -43,14 +47,14 @@ public class OrderCommand implements IOrderCommand {
         order.setBuyerDetail(modelMapper.map(orderDTO.getBuyerDetail(), BuyerDetail.class));
         order.setOrderStatus(OrderStatus.UNPAID);
 
-        System.out.println("Enter Repository"+order);
         orderRepository.save(order);
 
-        System.out.println("Enter OrderDTO"+order);
         orderDTO.setOrderId(order.getOrderId());
-
         orderDTO.setOrderStatus(order.getOrderStatus());
         orderDTO.setUserId(order.getBuyerDetail().getRefUserId());
+        System.out.println(order);
+
+        domainEventPublisher.publish(order);
 
         try {
             String orderDTOJson = new ObjectMapper().writeValueAsString(modelMapper.map(orderDTO, UserOrderDTO.class));

@@ -75,12 +75,13 @@ public class OrderController {
 //    }
 
     @PostMapping("/new-order")
-    public ResponseEntity<String> createOrderById(@RequestBody UUIDOrderDTO UUIDOrderDTO) {
+    public ResponseEntity<?> createOrderById(@RequestBody UUIDOrderDTO UUIDOrderDTO) {
         try {
-            UUIDOrderDTO createOrderDTO = new UUIDOrderDTO(UUIDOrderDTO.getUserId(), UUIDOrderDTO.getPostId());
+            UUID orderId = UUID.randomUUID();
+            UUIDOrderDTO createOrderDTO = new UUIDOrderDTO(orderId, UUIDOrderDTO.getUserId(), UUIDOrderDTO.getPostId());
             String createOrderDTOJson = new ObjectMapper().writeValueAsString(createOrderDTO);
             kafkaProducer.sendMessage("CreateOrder", createOrderDTOJson);
-            return ResponseEntity.ok("Order Creating");
+            return ResponseEntity.ok(createOrderDTO);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -2,6 +2,7 @@ package com.nus.nexchange.orderservice.api.dto;
 
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.nus.nexchange.orderservice.domain.entity.OrderStatus;
@@ -27,4 +28,6 @@ public class OrderDTO {
     private BuyerDetailDTO buyerDetail;
 
     private UUID userId;
+
+    private LocalDateTime dateTimeCreated;
 }

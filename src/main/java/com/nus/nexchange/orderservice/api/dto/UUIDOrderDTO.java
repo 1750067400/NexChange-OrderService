@@ -13,8 +13,9 @@ public class UUIDOrderDTO {
     private UUID userId;
     private UUID secret;
 
-    public UUIDOrderDTO(UUID userId, UUID postId) {
+    public UUIDOrderDTO(UUID orderId, UUID userId, UUID postId) {
         this.secret = UUID.randomUUID();
+        this.orderId = orderId;
         this.userId = userId;
         this.postId = postId;
     }
