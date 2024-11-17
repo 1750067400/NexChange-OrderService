@@ -1,0 +1,48 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-order-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mysql-order-service
+  template:
+    metadata:
+      labels:
+        app: mysql-order-service
+    spec:
+      containers:
+        - name: mysql-order-service
+          image: mysql:5.7
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secrets-order
+                  key: root-password
+            - name: MYSQL_DATABASE
+              value: "NexChangeOrderDB"
+            - name: MYSQL_USER
+              value: “root”
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-persistent-storage-order
+              mountPath: /var/lib/mysql  # MySQL 的数据目录
+      volumes:
+        - name: mysql-persistent-storage-order
+          persistentVolumeClaim:
+            claimName: mysql-pvc-order  # 订单数据库的PVC
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-order-service
+spec:
+  type: ClusterIP
+  selector:
+    app: mysql-order-service
+  ports:
+    - port: 3306
